@@ -1,488 +1,271 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Xì Dách Thống Kê - 2026</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
     <style>
-      :root {
-        --m3-surface: #1c1b1f;
-        --m3-primary: #d0bcff;
-        --m3-on-primary: #381e72;
-        --m3-primary-container: #4f378b;
-        --m3-on-primary-container: #eaddff;
-      }
-
-      body {
-        background-color: var(--m3-surface);
-        color: #e6e1e5;
-        font-family: "Poppins", sans-serif;
-        -webkit-tap-highlight-color: transparent;
-      }
-
-      .m3-card {
-        background-color: #2b2930;
-        border-radius: 28px;
-        transition: all 0.2s ease;
-      }
-
-      .m3-input-field {
-        background-color: #49454f;
-        border-radius: 12px;
-        padding: 12px 16px;
-        border: 1px solid transparent;
-        transition: border 0.3s;
-      }
-
-      .m3-input-field:focus {
-        border-color: var(--m3-primary);
-        outline: none;
-      }
-
-      .m3-btn-primary {
-        background-color: var(--m3-primary);
-        color: var(--m3-on-primary);
-        border-radius: 100px;
-        font-weight: 600;
-      }
-
-      .m3-btn-tonal {
-        background-color: #4a4458;
-        color: #e8def8;
-        border-radius: 100px;
-      }
-
-      .is-cai-active {
-        outline: 2px solid var(--m3-primary);
-        background-color: #35313d !important;
-      }
-
-      /* Hiệu ứng chuyển tab mượt */
-      .tab-content {
-        display: none;
-        animation: fadeIn 0.4s ease;
-      }
-      .tab-content.active {
-        display: block;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
+      :root { --m3-surface: #1c1b1f; --m3-primary: #d0bcff; --m3-on-primary: #381e72; }
+      body { background-color: var(--m3-surface); color: #e6e1e5; font-family: "Poppins", sans-serif; overflow-x: hidden; }
+      .m3-card { background-color: #2b2930; border-radius: 16px; transition: all 0.2s; }
+      .m3-input-field { background-color: #49454f; border-radius: 8px; padding: 8px 12px; border: 1px solid transparent; }
+      .m3-btn-primary { background-color: var(--m3-primary); color: var(--m3-on-primary); border-radius: 100px; font-weight: 600; }
+      .m3-btn-tonal { background-color: #4a4458; color: #e8def8; border-radius: 100px; }
+      .is-cai-active { outline: 2px solid var(--m3-primary); background-color: #35313d !important; position: relative; }
+      .is-cai-active::after { content: "CHỦ SÒNG"; position: absolute; top: 0; right: 0; background: #d0bcff; color: #381e72; font-size: 8px; font-weight: bold; padding: 1px 10px; border-radius: 0 0 0 10px; }
+      .status-btn { border-radius: 8px; font-size: 9px; font-weight: bold; padding: 6px 2px; transition: all 0.2s; border: 1px solid #49454f; flex: 1; text-align: center; }
+      .status-win { background-color: #2e7d32; color: white; border-color: #4caf50; }
+      .status-lose { background-color: #c62828; color: white; border-color: #f44336; }
+      .status-draw { background-color: #4a4458; color: #e8def8; }
+      .tab-content { display: none; }
+      .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      .sticky-live-balance { position: sticky; top: 8px; z-index: 45; margin-bottom: 12px; }
+      .sticky-bottom-action { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px; background: linear-gradient(to top, var(--m3-surface) 90%, transparent); z-index: 50; }
+      .reset-btn { background: rgba(255, 255, 255, 0.05); }
+      .summary-chip { background: #35313d; border: 1px solid #49454f; border-radius: 12px; padding: 6px 10px; }
     </style>
   </head>
-  <body class="min-h-screen pb-12">
-    <div class="max-w-md mx-auto p-5">
-      <header class="flex items-center justify-between mb-8 pt-2">
+  <body class="min-h-screen pb-24">
+    <div class="max-w-md mx-auto px-4">
+      <header class="flex items-center justify-between py-4">
         <div>
-          <h1 class="text-2xl font-semibold tracking-tight">Xì Dách</h1>
-          <p
-            class="text-[#d0bcff] text-[10px] font-bold tracking-[0.2em] uppercase"
-          >
-            Thống kê
-          </p>
+          <h1 class="text-xl font-bold">Xì Dách</h1>
+          <p class="text-[#d0bcff] text-[8px] font-bold tracking-[0.2em] uppercase">Thống Kê 2026</p>
         </div>
-        <div class="bg-[#4f378b] px-4 py-1.5 rounded-full shadow-inner">
-          <span class="text-xs font-semibold text-[#eaddff]"
-            >VÁN #<span id="current-game-no">1</span></span
-          >
+        <div class="flex items-center gap-2">
+          <button onclick="resetAll()" class="reset-btn p-1.5 rounded-full text-[#eaddff]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
+          <div class="bg-[#4f378b] px-3 py-1 rounded-full border border-[#d0bcff]/20">
+            <span class="text-[10px] font-bold text-[#eaddff]">VÁN #<span id="current-game-no">1</span></span>
+          </div>
         </div>
       </header>
 
-      <div class="flex p-1.5 bg-[#2b2930] rounded-full mb-8 shadow-lg">
-        <button
-          onclick="switchTab('home')"
-          id="btn-home"
-          class="flex-1 py-2.5 rounded-full text-sm font-semibold transition-all m3-btn-primary"
-        >
-          Trang chủ
-        </button>
-        <button
-          onclick="switchTab('history')"
-          id="btn-history"
-          class="flex-1 py-2.5 rounded-full text-sm font-semibold transition-all text-[#cac4d0]"
-        >
-          Lịch sử
-        </button>
+      <div class="flex p-1 bg-[#2b2930] rounded-full mb-4">
+        <button onclick="switchTab('home')" id="btn-home" class="flex-1 py-1.5 rounded-full text-xs font-semibold m3-btn-primary shadow-md">Trang chủ</button>
+        <button onclick="switchTab('history')" id="btn-history" class="flex-1 py-1.5 rounded-full text-xs font-semibold text-[#cac4d0]">Lịch sử</button>
       </div>
 
-      <div id="tab-home" class="tab-content active space-y-5">
-        <div class="m3-card p-5 shadow-sm">
-          <div class="flex flex-col gap-3">
-            <input
-              id="new-player-name"
-              type="text"
-              placeholder="Nhập tên người chơi mới..."
-              class="w-full m3-input-field text-white placeholder-[#938f99] font-medium text-lg"
-            />
-
-            <button
-              onclick="addPlayer()"
-              class="m3-btn-primary w-full py-4 flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="3"
-                stroke="currentColor"
-                class="w-5 h-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 4.5v15m7.5-7.5h-15"
-                />
-              </svg>
-              <span class="text-sm font-bold uppercase tracking-wider"
-                >Thêm người chơi</span
-              >
-            </button>
-          </div>
-        </div>
-
-        <div class="m3-card p-5">
-          <label
-            class="text-[11px] text-[#d0bcff] font-bold uppercase tracking-widest mb-3 block"
-          >
-            Chọn nhanh
-          </label>
-          <div class="flex flex-col gap-3">
-            <input
-              type="number"
-              id="quick-bet-value"
-              value="5000"
-              step="1000"
-              class="w-full m3-input-field text-white placeholder-[#938f99] font-medium text-xl"
-            />
-            <button
-              onclick="checkAllBet()"
-              class="m3-btn-tonal w-full py-4 text-[11px] font-bold uppercase shadow-sm active:scale-95 transition-transform"
-            >
-              Áp dụng
-            </button>
-          </div>
-        </div>
-
-        <div
-          class="m3-card p-6 border border-[#4f378b] shadow-2xl"
-        >
-          <div class="flex flex-col gap-4">
-            <div class="text-center">
-              <p
-                class="text-[10px] text-[#cac4d0] font-bold uppercase tracking-widest mb-1"
-              >
-                Tổng Cược Ván Hiện Tại
-              </p>
-              <p class="text-5xl font-bold text-[#d0bcff]">
-                <span id="total-pool">0</span
-                ><span class="text-lg ml-1 font-medium">đ</span>
-              </p>
+      <div id="tab-home" class="tab-content active space-y-3">
+        <div id="cai-live-sticky" class="sticky-live-balance hidden">
+            <div class="m3-card p-3 bg-[#381e72] border border-[#d0bcff]/30 shadow-lg flex justify-between items-center">
+                <div class="flex gap-4">
+                    <div class="flex flex-col">
+                        <span class="text-[8px] text-[#d0bcff]/70 font-bold uppercase">Tổng cược</span>
+                        <span id="total-bet-live" class="text-xs font-bold text-white">0đ</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[8px] text-[#d0bcff] font-bold uppercase">Ăn được</span>
+                        <span id="live-cai-diff" class="text-sm font-black">0đ</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[8px] text-gray-400 uppercase font-bold">CHỦ SÒNG</p>
+                    <p class="font-bold text-white text-xs" id="cai-name-text">-</p>
+                </div>
             </div>
-
-            <button
-              onclick="finishGame()"
-              class="m3-btn-primary w-full py-4 text-sm font-bold shadow-[0_8px_20px_rgba(208,188,255,0.2)] active:scale-95 transition-all"
-            >
-              KẾT THÚC VÁN
-            </button>
-          </div>
         </div>
 
-        <div id="player-list" class="space-y-4 pb-6"></div>
+        <div class="m3-card p-3 flex gap-2 items-center">
+            <input id="new-player-name" type="text" placeholder="Tên người chơi mới..." class="flex-1 m3-input-field text-xs text-white" />
+            <button onclick="addPlayer()" class="m3-btn-primary px-4 py-2 text-xs">Thêm</button>
+        </div>
+
+        <div class="m3-card p-3 bg-[#35313d] border border-[#d0bcff]/10 flex gap-2 items-center">
+            <div class="flex-1 flex items-center bg-[#1c1b1f] rounded-lg px-2 py-1">
+                <span class="text-[8px] text-[#d0bcff] font-bold mr-2 uppercase">Mức cược chung</span>
+                <input id="quick-bet-value" type="number" value="5000" class="bg-transparent font-bold text-white text-xs w-full text-right outline-none" />
+            </div>
+            <button onclick="applyQuickBet()" class="m3-btn-tonal px-4 py-2 text-[10px] font-bold uppercase">Áp dụng</button>
+        </div>
+
+        <div id="player-list" class="space-y-2"></div>
       </div>
 
-      <div id="tab-history" class="tab-content space-y-6">
-        <div class="flex justify-between items-center px-2">
-          <h2 class="text-xl font-semibold">Lịch sử</h2>
-          <button
-            onclick="exportToExcel()"
-            class="bg-[#381e72] text-[#eaddff] px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 shadow-md"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-              class="w-4 h-4"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
-              />
-            </svg>
-            XUẤT EXCEL
-          </button>
+      <div id="footer-action" class="sticky-bottom-action max-w-md mx-auto">
+        <button onclick="finishGame()" class="m3-btn-primary w-full py-3 text-xs font-bold shadow-lg ring-2 ring-[#1c1b1f]">KẾT THÚC VÁN</button>
+      </div>
+
+      <div id="tab-history" class="tab-content space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-semibold">Lịch sử</h2>
+          <button onclick="exportToExcel()" class="bg-[#381e72] text-[#eaddff] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase">Xuất Excel</button>
         </div>
-        <div id="history-list" class="space-y-4"></div>
+        <div id="history-summary" class="m3-card p-3 space-y-2 border border-[#49454f]">
+            <p class="text-[9px] font-bold text-[#d0bcff] uppercase">Bảng Tổng Kết</p>
+            <div id="summary-list" class="grid grid-cols-2 gap-2"></div>
+        </div>
+        <div id="history-list" class="space-y-3"></div>
       </div>
     </div>
 
     <script>
       let players = JSON.parse(localStorage.getItem("players")) || [];
       let history = JSON.parse(localStorage.getItem("history")) || [];
-      let gameNo =
-        history.length > 0 ? history[history.length - 1].gameNo + 1 : 1;
+      let gameNo = history.length > 0 ? history[history.length - 1].gameNo + 1 : 1;
 
       function render() {
         const list = document.getElementById("player-list");
+        const liveCaiSticky = document.getElementById("cai-live-sticky");
+        const liveCaiDiffText = document.getElementById("live-cai-diff");
+        const totalBetText = document.getElementById("total-bet-live");
+        const caiNameText = document.getElementById("cai-name-text");
+        
         list.innerHTML = "";
-        let totalPool = 0;
+        let caiDiff = 0;
+        let totalBet = 0;
+        let caiObj = players.find(p => p.isCai);
 
-        players.forEach((p, index) => {
-          if (!p.isCai) totalPool += parseInt(p.currentBet) || 0;
-
-          list.innerHTML += `
-                    <div class="m3-card p-5 ${p.isCai ? "is-cai-active" : ""}">
-                        <div class="flex justify-between items-start mb-5">
-                            <div>
-                                <h3 class="font-semibold text-lg flex items-center gap-2">
-                                    ${p.name} 
-                                    ${p.isCai ? '<span class="bg-[#d0bcff] text-[#381e72] text-[9px] px-2 py-0.5 rounded-full font-black">CHỦ CÁI</span>' : ""}
-                                </h3>
-                                <p class="text-sm font-medium ${p.balance >= 0 ? "text-[#b2f2bb]" : "text-[#ffb4ab]"} mt-1">
-                                    Số dư: ${p.balance.toLocaleString()}đ
-                                </p>
-                            </div>
-                            <button onclick="removePlayer(${index})" class="text-[#938f99] p-1 hover:text-white">&times;</button>
-                        </div>
-
-                        <div class="bg-[#1c1b1f] p-4 rounded-2xl mb-5 flex items-center justify-between">
-                            <span class="text-[10px] font-bold text-[#938f99] uppercase tracking-widest">Tiền cược</span>
-                            <input type="number" value="${p.currentBet}" 
-                                onchange="updateBet(${index}, this.value)" 
-                                class="bg-transparent font-bold text-[#d0bcff] text-2xl text-right w-1/2 outline-none"
-                                ${p.isCai ? 'disabled placeholder="- - -"' : ""}>
-                        </div>
-
-                        ${
-                          !p.isCai
-                            ? `
-                        <div class="grid grid-cols-4 gap-2">
-                            <button onclick="quickBet(${index}, 2000)" class="bg-[#49454f] py-2.5 rounded-xl text-[11px] font-bold">2K</button>
-                            <button onclick="quickBet(${index}, 5000)" class="bg-[#49454f] py-2.5 rounded-xl text-[11px] font-bold">5K</button>
-                            <button onclick="quickBet(${index}, 10000)" class="bg-[#49454f] py-2.5 rounded-xl text-[11px] font-bold">10K</button>
-                            <button onclick="setAsCai(${index})" class="bg-[#381e72] text-[#eaddff] text-[9px] font-bold rounded-xl uppercase">Làm Cái</button>
-                        </div>
-                        `
-                            : `
-                        <button onclick="cancelCai(${index})" class="w-full bg-[#4a4458] text-[#e8def8] py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest">Hủy tư cách cái</button>
-                        `
-                        }
-                    </div>
-                `;
+        players.forEach((p) => {
+          if (!p.isCai) {
+            const betAmount = (parseInt(p.currentBet) || 0) * (p.mul || 1);
+            totalBet += betAmount;
+            if (p.status === 'lose') caiDiff += betAmount;
+            else if (p.status === 'win') caiDiff -= betAmount;
+          }
         });
 
-        document.getElementById("total-pool").innerText =
-          totalPool.toLocaleString();
+        if (caiObj) {
+            liveCaiSticky.classList.remove("hidden");
+            caiNameText.innerText = caiObj.name;
+            totalBetText.innerText = totalBet.toLocaleString() + "đ";
+            liveCaiDiffText.innerText = (caiDiff >= 0 ? "+" : "") + caiDiff.toLocaleString() + "đ";
+            liveCaiDiffText.className = `text-sm font-black ${caiDiff >= 0 ? 'text-green-400' : 'text-red-400'}`;
+        } else { liveCaiSticky.classList.add("hidden"); }
+
+        players.forEach((p, index) => {
+          if (!p.status) p.status = 'lose'; 
+          if (!p.mul) p.mul = 1;
+          const cardHtml = `
+            <div class="m3-card p-3 ${p.isCai ? "is-cai-active" : ""}">
+              <div class="flex justify-between items-center mb-2">
+                <div>
+                  <h3 class="font-bold text-sm truncate w-32 uppercase">${p.name}</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                   <button onclick="setAsCai(${index})" class="p-1.5 rounded-lg bg-[#381e72] text-[8px] font-bold uppercase ${p.isCai ? 'hidden' : ''}">Làm CHỦ SÒNG</button>
+                   <button onclick="removePlayer(${index})" class="text-gray-500 text-lg leading-none p-1">&times;</button>
+                </div>
+              </div>
+              ${p.isCai ? `
+                <button onclick="cancelCai(${index})" class="w-full bg-[#4a4458] py-1.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">Thôi làm CHỦ SÒNG</button>
+              ` : `
+                <div class="flex items-center gap-2">
+                  <div class="flex-[1.5] flex items-center bg-[#1c1b1f] rounded-lg px-2 py-1 border border-gray-800">
+                    <span class="text-[8px] text-gray-500 font-bold mr-2">CƯỢC</span>
+                    <input type="number" value="${p.currentBet}" onchange="updateBet(${index}, this.value)" class="bg-transparent font-bold text-[#d0bcff] text-xs w-full text-right outline-none">
+                  </div>
+                  <div class="flex-1 flex gap-1">
+                     ${[1, 2, 3].map(m => `<button onclick="updateMul(${index}, ${m})" class="flex-1 py-1 rounded-md text-[8px] font-bold ${p.mul === m ? 'bg-[#d0bcff] text-black' : 'bg-[#49454f]'}">x${m}</button>`).join('')}
+                  </div>
+                </div>
+                <div class="flex gap-1 mt-2">
+                  <button onclick="updateStatus(${index}, 'win')" class="status-btn ${p.status === 'win' ? 'status-win' : 'status-draw'}">THẮNG</button>
+                  <button onclick="updateStatus(${index}, 'draw')" class="status-btn ${p.status === 'draw' ? 'bg-white text-black' : ''}">HÒA</button>
+                  <button onclick="updateStatus(${index}, 'lose')" class="status-btn ${p.status === 'lose' ? 'status-lose' : 'status-draw'}">THUA</button>
+                </div>
+              `}
+            </div>
+          `;
+          list.innerHTML += cardHtml;
+        });
         document.getElementById("current-game-no").innerText = gameNo;
         saveData();
       }
 
-      // Logic Functions
-      function addPlayer() {
-        const input = document.getElementById("new-player-name");
-        if (!input.value.trim()) return;
-        players.push({
-          name: input.value.trim(),
-          balance: 0,
-          currentBet: 0,
-          isCai: false,
-        });
-        input.value = "";
-        render();
-      }
+      function addPlayer() { const input = document.getElementById("new-player-name"); if (!input.value.trim()) return; players.push({ name: input.value.trim(), balance: 0, currentBet: 5000, isCai: false, status: 'lose', mul: 1 }); input.value = ""; render(); }
+      function removePlayer(index) { if (confirm("Xóa người chơi này?")) { players.splice(index, 1); render(); } }
+      function resetAll() { if (confirm("Reset toàn bộ lịch sử và số dư?")) { history = []; gameNo = 1; players.forEach(p => p.balance = 0); render(); if (document.getElementById("tab-history").classList.contains("active")) renderHistory(); } }
+      function setAsCai(index) { players.forEach(p => { p.isCai = false; p.status = 'lose'; p.mul = 1; }); players[index].isCai = true; players[index].currentBet = 0; render(); }
+      function cancelCai(index) { players[index].isCai = false; render(); }
+      function updateBet(index, val) { players[index].currentBet = parseInt(val) || 0; render(); }
+      function updateStatus(index, status) { players[index].status = status; render(); }
+      function updateMul(index, m) { players[index].mul = m; render(); }
 
-      function removePlayer(index) {
-        if (confirm("Xóa người chơi này?")) {
-          players.splice(index, 1);
-          render();
-        }
-      }
-
-      function setAsCai(index) {
-        players.forEach((p) => (p.isCai = false));
-        players[index].isCai = true;
-        players[index].currentBet = 0;
-        render();
-      }
-
-      function cancelCai(index) {
-        players[index].isCai = false;
-        render();
-      }
-
-      function updateBet(index, val) {
-        players[index].currentBet = parseInt(val) || 0;
-        render();
-      }
-
-      function quickBet(index, val) {
-        players[index].currentBet = val;
-        render();
-      }
-
-      function checkAllBet() {
-        const val =
-          parseInt(document.getElementById("quick-bet-value").value) || 0;
-        players.forEach((p) => {
-          if (!p.isCai) p.currentBet = val;
-        });
+      function applyQuickBet() {
+        const val = parseInt(document.getElementById("quick-bet-value").value) || 0;
+        players.forEach(p => { if (!p.isCai) p.currentBet = val; });
         render();
       }
 
       function finishGame() {
-        const caiIndex = players.findIndex((p) => p.isCai);
-        if (caiIndex === -1) {
-          // Thay alert bằng thông báo nhẹ nhàng hơn nếu muốn, hoặc giữ lại
-          return alert(
-            "⚠️ Vui lòng chọn một người làm Cái trước khi kết thúc!",
-          );
+        const caiIndex = players.findIndex(p => p.isCai);
+        if (caiIndex === -1) return alert("Vui lòng chọn người làm CHỦ SÒNG!");
+
+        // --- CHECK ĐẶT CƯỢC ---
+        let missingBetPlayers = players.filter(p => !p.isCai && (!p.currentBet || p.currentBet <= 0));
+        if (missingBetPlayers.length > 0) {
+            let names = missingBetPlayers.map(p => p.name).join(", ");
+            return alert(`LỖI: Người chơi (${names}) chưa đặt cược hoặc mức cược không hợp lệ!`);
         }
+        // ---------------------
 
-        // Tính toán sơ bộ để hiển thị trong thông báo xác nhận
-        let currentPool = 0;
+        let caiDiff = 0;
         players.forEach((p) => {
-          if (!p.isCai) currentPool += parseInt(p.currentBet) || 0;
-        });
-
-        // Thêm bước xác nhận (Alert confirm)
-        const isConfirmed = confirm(
-          `Xác nhận kết thúc Ván ${gameNo}?\n` +
-            `Tổng tiền cược: ${currentPool.toLocaleString()}đ\n`,
-        );
-
-        if (!isConfirmed) return; // Nếu người dùng nhấn "Hủy" thì dừng lại
-
-        let pool = 0;
-        let logDetails = [];
-
-        players.forEach((p) => {
-          const bet = parseInt(p.currentBet) || 0;
           if (!p.isCai) {
-            pool += bet;
-            p.balance -= bet;
+            const betAmount = (parseInt(p.currentBet) || 0) * (p.mul || 1);
+            if (p.status === 'lose') caiDiff += betAmount;
+            else if (p.status === 'win') caiDiff -= betAmount;
           }
-          logDetails.push({ name: p.name, bet: bet, isCai: p.isCai });
         });
+        if (!confirm(`Kết thúc ván? CHỦ SÒNG: ${caiDiff >= 0 ? '+' : ''}${caiDiff.toLocaleString()}đ`)) return;
 
-        players[caiIndex].balance += pool;
-
-        history.push({
-          gameNo: gameNo,
-          totalPool: pool,
-          details: logDetails,
-          timestamp: new Date().toLocaleTimeString("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+        let logDetails = [];
+        players.forEach((p) => {
+          if (p.isCai) return;
+          const finalBet = (parseInt(p.currentBet) || 0) * (p.mul || 1);
+          let change = p.status === 'win' ? finalBet : (p.status === 'lose' ? -finalBet : 0);
+          p.balance += change;
+          logDetails.push({ name: p.name, change: change, isCai: false, mul: p.mul });
         });
+        players[caiIndex].balance += caiDiff;
+        logDetails.splice(caiIndex, 0, { name: players[caiIndex].name, change: caiDiff, isCai: true });
 
-        gameNo++;
-        render();
-
-        // Thông báo thành công nhỏ (tùy chọn)
-        console.log(`Ván ${gameNo - 1} đã được lưu vào lịch sử.`);
+        history.push({ gameNo: gameNo, totalPool: caiDiff, details: logDetails, timestamp: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) });
+        
+        // Reset trạng thái sau ván nhưng GIỮ LẠI mức cược (để ván sau không phải nhập lại nếu chơi mức cũ)
+        players.forEach(p => { p.status = 'lose'; p.mul = 1; });
+        
+        gameNo++; 
+        render(); 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
-      function saveData() {
-        localStorage.setItem("players", JSON.stringify(players));
-        localStorage.setItem("history", JSON.stringify(history));
-      }
-
+      function saveData() { localStorage.setItem("players", JSON.stringify(players)); localStorage.setItem("history", JSON.stringify(history)); }
       function switchTab(tab) {
         const isHome = tab === "home";
         document.getElementById("tab-home").classList.toggle("active", isHome);
-        document
-          .getElementById("tab-history")
-          .classList.toggle("active", !isHome);
-
-        // UI Button classes
-        const homeBtn = document.getElementById("btn-home");
-        const historyBtn = document.getElementById("btn-history");
-
-        if (isHome) {
-          homeBtn.className =
-            "flex-1 py-2.5 rounded-full text-sm font-semibold transition-all m3-btn-primary shadow-md";
-          historyBtn.className =
-            "flex-1 py-2.5 rounded-full text-sm font-semibold transition-all text-[#cac4d0]";
-        } else {
-          homeBtn.className =
-            "flex-1 py-2.5 rounded-full text-sm font-semibold transition-all text-[#cac4d0]";
-          historyBtn.className =
-            "flex-1 py-2.5 rounded-full text-sm font-semibold transition-all m3-btn-primary shadow-md";
-          renderHistory();
-        }
+        document.getElementById("tab-history").classList.toggle("active", !isHome);
+        document.getElementById("footer-action").style.display = isHome ? 'block' : 'none';
+        document.getElementById("btn-home").className = isHome ? "flex-1 py-1.5 rounded-full text-xs font-semibold m3-btn-primary shadow-md" : "flex-1 py-1.5 rounded-full text-xs font-semibold text-[#cac4d0]";
+        document.getElementById("btn-history").className = !isHome ? "flex-1 py-1.5 rounded-full text-xs font-semibold m3-btn-primary shadow-md" : "flex-1 py-1.5 rounded-full text-xs font-semibold text-[#cac4d0]";
+        if (!isHome) renderHistory();
       }
 
       function renderHistory() {
         const container = document.getElementById("history-list");
-        if (history.length === 0) {
-          container.innerHTML =
-            '<div class="text-center py-24 text-[#938f99] font-medium italic">Chưa có dữ liệu ván đấu nào...</div>';
-          return;
-        }
+        const summaryList = document.getElementById("summary-list");
+        if (history.length === 0) { container.innerHTML = '<div class="text-center py-10 text-gray-500 italic text-xs">Chưa có lịch sử ván đấu.</div>'; return; }
+        
+        let totalEarnings = {};
+        history.forEach(h => h.details.forEach(d => { totalEarnings[d.name] = (totalEarnings[d.name] || 0) + d.change; }));
+        summaryList.innerHTML = Object.entries(totalEarnings).sort((a,b)=>b[1]-a[1]).map(([name, total]) => `
+            <div class="summary-chip text-center"><p class="text-[8px] text-gray-400 truncate uppercase">${name}</p><p class="text-[10px] font-bold ${total>=0?'text-green-400':'text-red-400'}">${total.toLocaleString()}</p></div>
+        `).join("");
 
-        container.innerHTML = history
-          .slice()
-          .reverse()
-          .map(
-            (h) => `
-                <div class="m3-card p-5 border-l-8 border-[#d0bcff]">
-                    <div class="flex justify-between items-center mb-4 border-b border-[#49454f] pb-3">
-                        <span class="font-bold text-sm">Ván ${h.gameNo} <span class="text-[10px] text-[#938f99] font-normal ml-3 tracking-tighter">${h.timestamp}</span></span>
-                        <span class="text-[#d0bcff] font-bold text-lg underline underline-offset-4">${h.totalPool.toLocaleString()}đ</span>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2">
-                        ${h.details
-                          .map(
-                            (d) => `
-                            <div class="flex justify-between text-xs font-medium">
-                                <span class="${d.isCai ? "text-[#d0bcff]" : "text-[#cac4d0]"}">${d.name} ${d.isCai ? "<b>(Cái)</b>" : ""}</span>
-                                <span class="${d.isCai ? "text-[#b2f2bb]" : "text-[#ffb4ab]"} font-bold">
-                                    ${d.isCai ? "+" + h.totalPool.toLocaleString() : "-" + d.bet.toLocaleString()}
-                                </span>
-                            </div>
-                        `,
-                          )
-                          .join("")}
-                    </div>
-                </div>
-            `,
-          )
-          .join("");
-      }
-
-      function exportToExcel() {
-        if (history.length === 0) return alert("Không có dữ liệu!");
-        const wsData = players.map((p) => ({
-          "Họ và Tên": p.name,
-          "Số dư cuối": p.balance,
-        }));
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, "Ket_Qua");
-        XLSX.writeFile(wb, `Xi_Dach_Tet_2026_${new Date().getTime()}.xlsx`);
+        container.innerHTML = history.slice().reverse().map(h => `
+          <div class="m3-card p-3 border-l-4 ${h.totalPool >= 0 ? 'border-green-500' : 'border-red-500'}">
+            <div class="flex justify-between text-[10px] mb-2 border-b border-gray-700 pb-1"><span class="font-bold">Ván ${h.gameNo}</span><span class="text-gray-400">${h.timestamp}</span></div>
+            <div class="space-y-0.5">${h.details.map(d => `<div class="flex justify-between text-[10px]"><span>${d.name} ${d.isCai?'(C)':''}</span><span class="${d.change>0?'text-green-400':d.change<0?'text-red-400':'text-gray-400'}">${d.change.toLocaleString()}</span></div>`).join("")}</div>
+          </div>
+        `).join("");
       }
 
       render();
